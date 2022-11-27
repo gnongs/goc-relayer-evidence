@@ -105,7 +105,52 @@ type ReturnData struct {
 		GasUsed   string `json:"gas_used"`
 		Tx        struct {
 			TypeURL string `json:"type_url"`
-			Value   string `json:"value"`
+			Body    struct {
+				Messages []struct {
+					TypeURL string `json:"@type"`
+					Header  struct {
+						Type         string `json:"@type"`
+						SignedHeader struct {
+							Header struct {
+								Version struct {
+									Block string `json:"block"`
+									App   string `json:"app"`
+								} `json:"version"`
+								ChainID     string    `json:"chain_id"`
+								Height      string    `json:"height"`
+								Time        time.Time `json:"time"`
+								LastBlockID struct {
+									Hash          string `json:"hash"`
+									PartSetHeader struct {
+										Total int    `json:"total"`
+										Hash  string `json:"hash"`
+									} `json:"part_set_header"`
+								} `json:"last_block_id"`
+								LastCommitHash     string `json:"last_commit_hash"`
+								DataHash           string `json:"data_hash"`
+								ValidatorsHash     string `json:"validators_hash"`
+								NextValidatorsHash string `json:"next_validators_hash"`
+								ConsensusHash      string `json:"consensus_hash"`
+								AppHash            string `json:"app_hash"`
+								LastResultsHash    string `json:"last_results_hash"`
+								EvidenceHash       string `json:"evidence_hash"`
+								ProposerAddress    string `json:"proposer_address"`
+							} `json:"header"`
+						} `json:"signed_header"`
+					} `json:"header"`
+				} `json:"messages"`
+				Memo             string `json:"memo"`
+				TimeoutHeight    string `json:"timeout_height"`
+				ExtensionOptions []struct {
+					TypeURL string `json:"type_url"`
+					Value   string `json:"value"`
+				} `json:"extension_options"`
+				NonCriticalExtensionOptions []struct {
+					TypeURL string `json:"type_url"`
+					Value   string `json:"value"`
+				} `json:"non_critical_extension_options"`
+			} `json:"body"`
+			Value string `json:"value"`
 		} `json:"tx"`
 		Timestamp string `json:"timestamp"`
 	} `json:"tx_responses"`

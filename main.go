@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	rpc     = "YOUR_RPC_ENDPOINT"
-	address = "YOUR_RELAYER_ADDRESS"
+	rpc     = "https://api-c.hero.nodestake.top/"
+	address = "cosmos1f9k0728rcngqj7p2eeqk27v8dw5sw5ccydx77j"
 )
 
 var (
@@ -70,11 +70,12 @@ func getHeight(rpc, address string) []string {
 		var value = url.Values{}
 		value.Set("pagination.offset", strconv.Itoa(i*100+1))
 		resp := sendQuery(value)
-		for _, x := range resp.Txs {
-			for _, m := range x.Body.Messages {
+
+		for _, txr := range resp.TxResponses {
+			for _, m := range txr.Tx.Body.Messages {
 				if m.TypeURL == "/ibc.core.client.v1.MsgUpdateClient" {
 					if m.Header.SignedHeader.Header.ValidatorsHash != m.Header.SignedHeader.Header.NextValidatorsHash {
-						heights = append(heights, m.Header.SignedHeader.Header.Height)
+						heights = append(heights, txr.Height)
 					}
 				}
 			}
