@@ -1,12 +1,20 @@
 # goc-relayer-evidence
 
-1. Edit `main.go`
+1. Edit `config.json`
 
-```go
-const (
-	rpc     = "YOUR_RPC_ENDPOINT"
-	address = "YOUR_RELAYER_ADDRESS"
-)
+```json
+[
+    {
+        "chain": "sputnik",
+        "address": "RELAYER_ADDRESS",
+        "rpc_endpoint": "RPC_ENDPOINT"
+    },
+    {
+        "chain": "gopher",
+        "address": "RELAYER_ADDRESS",
+        "rpc_endpoint": "RPC_ENDPOINT"
+    }
+]
 ```
 
 2. build binary
@@ -21,6 +29,6 @@ go build
 
 4. Print your evidence height
 ```sh
-TOTAL_COUNT: 12 of 13
-[287623 288069 288112 294001 295209 295935 296887 301010 305597 308727 314110 315114]
+hero 's total_count: 23 of 25
+[62882 63334 63377 69408 70645 71387 72359 76578 81283 84498 90055 91093 93501 94089 95066 97244 97270 97295 97993 98534 106299 106453 106547]
 ```
