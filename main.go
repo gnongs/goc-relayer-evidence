@@ -8,27 +8,49 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"sync"
 
+	c "github.com/gnongs/goc-relayer-evidence/config"
 	t "github.com/gnongs/goc-relayer-evidence/types"
 )
 
-const (
-	rpc     = "https://api-c.hero.nodestake.top/"
-	address = "cosmos1f9k0728rcngqj7p2eeqk27v8dw5sw5ccydx77j"
-)
-
 var (
-	tPackets int
+	chains   c.Config
+	evidence []t.Evidence
+	tPackets []int
 )
 
-func main() {
-	evidenceHeight := getHeight(rpc, address)
-
-	fmt.Println("TOTAL_COUNT:", len(evidenceHeight), "of", tPackets)
-	fmt.Println(evidenceHeight)
+func init() {
+	chains = c.LoadConfigFile("./config.json")
 }
 
-func sendQuery(v url.Values) t.ReturnData {
+func main() {
+	var wg sync.WaitGroup
+
+	for idx, c := range chains {
+		wg.Add(1)
+		evidence = append(evidence, t.Evidence{ChainName: c.Chain})
+		tPackets = append(tPackets, 0)
+		evidence[idx].ChainName = c.Chain
+
+		fmt.Println("Search Tx on", c.Chain, "....")
+		go func(x int, chain, addr, rpc string) {
+			defer wg.Done()
+			tPackets[x] = totalPackets(rpc, addr)
+			evidence[x].Heights = getHeight(rpc, addr, tPackets[x])
+			fmt.Println(chain, "packets checked")
+		}(idx, c.Chain, c.Address, c.RPCEndpoint)
+	}
+
+	wg.Wait()
+
+	for idx, e := range evidence {
+		fmt.Println(e.ChainName, "'s total_count:", len(e.Heights), "of", tPackets[idx])
+		fmt.Println(e.Heights)
+	}
+}
+
+func sendQuery(rpc, address string, v url.Values) t.ReturnData {
 	u := rpc + "/cosmos/tx/v1beta1/txs"
 	var d t.ReturnData
 
@@ -37,6 +59,7 @@ func sendQuery(v url.Values) t.ReturnData {
 	req, _ := http.NewRequest("GET", u, nil)
 	v.Set("events", "message.action='/ibc.core.client.v1.MsgUpdateClient'")
 	v.Set("events", "message.sender='"+address+"'")
+	v.Set("limit", "100")
 	req.URL.RawQuery = v.Encode()
 
 	resp, err := client.Do(req)
@@ -54,22 +77,20 @@ func sendQuery(v url.Values) t.ReturnData {
 	return d
 }
 
-func totalPackets() int {
+func totalPackets(rpc, address string) int {
 	parameters := url.Values{}
-	totalPackets, _ := strconv.Atoi(sendQuery(parameters).Pagination.Total)
+	totalPackets, _ := strconv.Atoi(sendQuery(rpc, address, parameters).Pagination.Total)
 
 	return totalPackets
 }
 
-func getHeight(rpc, address string) []string {
+func getHeight(rpc, address string, tPackets int) []string {
 	var heights []string
-
-	tPackets = totalPackets()
 
 	for i := 0; i <= (tPackets / 100); i++ {
 		var value = url.Values{}
 		value.Set("pagination.offset", strconv.Itoa(i*100+1))
-		resp := sendQuery(value)
+		resp := sendQuery(rpc, address, value)
 
 		for _, txr := range resp.TxResponses {
 			for _, m := range txr.Tx.Body.Messages {
