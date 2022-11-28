@@ -159,3 +159,8 @@ type ReturnData struct {
 		Total   string `json:"total"`
 	} `json:"pagination"`
 }
+
+type Evidence struct {
+	ChainName string
+	Heights   []string
+}
