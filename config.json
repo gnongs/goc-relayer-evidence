@@ -2,11 +2,11 @@
     {
         "chain": "sputnik",
         "address": "RELAYER_ADDRESS", 
-        "rpc_endpoint": "RPC_ENDPOINT"
+        "rpc_endpoint": "API_ENDPOINT"
     },
     {
         "chain": "gopher",
         "address": "RELAYER_ADDRESS", 
-        "rpc_endpoint": "RPC_ENDPOINT"
+        "rpc_endpoint": "API_ENDPOINT"
     }
 ]
