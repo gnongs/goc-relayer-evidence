@@ -1,5 +1,7 @@
 # goc-relayer-evidence
 
+**_If your relayer set 0 fee, you con't check heights with this program_**
+
 1. Edit `config.json`
 
 ```json
